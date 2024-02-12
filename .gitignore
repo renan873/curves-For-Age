@@ -17,3 +17,4 @@ gen
 */obj/*.props
 */obj/*.targets
 */obj/*.info
+*/obj/*.cache
