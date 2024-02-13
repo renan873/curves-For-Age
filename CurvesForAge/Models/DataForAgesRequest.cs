@@ -6,6 +6,6 @@ public class DataForAgesRequest
     public float Height { get; set; }
     public float Weight { get; set; }
     public float Hc { get; set; }
-    public float Bmi => (Weight * 10000) / (Height * Height);
+    public float Bmi => float.Round((Weight * 10000) / (Height * Height), 2);
     public DateTime Dob { get; set; }
 }

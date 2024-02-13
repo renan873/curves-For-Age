@@ -13,7 +13,16 @@
                 HeightRequest="95"
                 Aspect="AspectFit"
                 SemanticProperties.Description="Kid Height measure" />
-            <Label Text="{Binding Result}" />
+            <Label Style="{StaticResource SubHeadline}"
+                   Text="{Binding MainMessage}" />
+            
+            <Label Text="{Binding HeightResult}" />
+            
+            <Label Text="{Binding WeightResult}" />
+            
+            <Label Text="{Binding BmiResult}" />
+            
+            <Label Text="{Binding HcResult}" />
         </VerticalStackLayout>
     </ScrollView>
 
