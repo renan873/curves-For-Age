@@ -15,10 +15,10 @@
                 SemanticProperties.Description="Kid Height measure" />
 
             <Label
-                Text="ingresa los datos de la persona a calcular"
+                Text="Ingresa los datos de la persona a calcular"
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="ingresa los datos de la persona a calcular" />
+                SemanticProperties.Description="Ingresa los datos de la persona a calcular" />
             
             <StackLayout RadioButtonGroup.GroupName="Sexo"
                          RadioButtonGroup.SelectedValue="{Binding Sex}"
@@ -35,7 +35,7 @@
                         MaximumDate="{Binding MaxDate}"
                         Date="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}" />
 
-            <Label Text="Talla en cm" />
+            <Label Text="Talla - Longitud en cm" />
             <Entry Placeholder="Talla en cm" Keyboard="Numeric"
                    Text="{Binding Height}" />
 

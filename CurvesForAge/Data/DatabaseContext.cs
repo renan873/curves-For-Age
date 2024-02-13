@@ -20,7 +20,7 @@ public class DatabaseContext
         await Database.CreateTableAsync<TTable>();
     }
 
-    private async Task<AsyncTableQuery<TTable>> GetTableAsync<TTable>() where TTable : class, new()
+    public async Task<AsyncTableQuery<TTable>> GetTableAsync<TTable>() where TTable : class, new()
     {
         await CreateTableIfNotExists<TTable>();
         return Database.Table<TTable>();
@@ -32,7 +32,7 @@ public class DatabaseContext
         return await table.ToListAsync();
     }
 
-    public async Task<IEnumerable<TTable>> GetFileteredAsync<TTable>(Expression<Func<TTable, bool>> predicate)
+    public async Task<IEnumerable<TTable>> GetFilteredAsync<TTable>(Expression<Func<TTable, bool>> predicate)
         where TTable : class, new()
     {
         var table = await GetTableAsync<TTable>();
@@ -77,5 +77,5 @@ public class DatabaseContext
         return await Database.DeleteAsync<TTable>(primaryKey) > 0;
     }
 
-    public async ValueTask DisposeAsync() => await _connection?.CloseAsync();
+    public async ValueTask DisposeAsync() => await _connection?.CloseAsync()!;
 }
