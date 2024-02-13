@@ -25,9 +25,9 @@
                          Orientation="Horizontal">
                 <Label Text="Sexo" />
                 <RadioButton Content="Hombre"
-                             Value="Male" />
+                             Value="M" />
                 <RadioButton Content="Mujer"
-                             Value="Female" />
+                             Value="F" />
             </StackLayout>
 
             <Label Text="Fecha de nacimiento" />

@@ -5,17 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:CurvesForAge"
     xmlns:views="clr-namespace:CurvesForAge.Views"
-    Shell.FlyoutBehavior="Disabled"
+    FlyoutBehavior="Disabled"
     Title="CurvesForAge">
 
     <ShellContent
         Title="Curvas"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-    
+        Route="main" />
+
     <ShellContent
         Title="Resultado"
         ContentTemplate="{DataTemplate views:ResultPage}"
-        Route="ResultPage" />
+        Route="result" />
 
 </Shell>
