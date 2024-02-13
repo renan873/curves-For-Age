@@ -61,11 +61,6 @@ public class ResultViewModel : ViewModelBase
         MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {_request.Bmi}, " +
                       $"lo que nos da el siguiente resultado:";
 
-        var bmiResult = await dataForAgeTable
-            .Where(x => x.Sex == sex && x.Type == "BMIForAge" && x.Days < days)
-            .OrderByDescending(x => x.Days)
-            .FirstAsync() ?? new DataForAge();
-
         var heightResult = await dataForAgeTable
             .Where(x => x.Sex == sex && x.Type == "HeightForAge" && x.Days < days)
             .OrderByDescending(x => x.Days)
@@ -76,9 +71,24 @@ public class ResultViewModel : ViewModelBase
             .OrderByDescending(x => x.Days)
             .FirstAsync() ?? new DataForAge();
 
+        var bmiResult = await dataForAgeTable
+            .Where(x => x.Sex == sex && x.Type == "BMIForAge" && x.Days < days)
+            .OrderByDescending(x => x.Days)
+            .FirstAsync() ?? new DataForAge();
+
         HeightResult = DefineCase(heightResult, _request.Height, "una talla - longitud") + ".";
         WeightResult = DefineCase(weightResult, _request.Weight, "un peso") + ".";
         BmiResult = DefineCase(bmiResult, _request.Bmi, "un IMC") + ".";
+
+        if (days < 730)
+        {
+            var hcResult = await dataForAgeTable
+                .Where(x => x.Sex == sex && x.Type == "HCForAge" && x.Days < days)
+                .OrderByDescending(x => x.Days)
+                .FirstAsync() ?? new DataForAge();
+            
+            HcResult = DefineCase(hcResult, _request.Hc, "un perímetro cefálico") + ".";
+        }
 
         //Application.Current?.MainPage?.DisplayAlert("Alerta",
         //    $"el registro es de {bmiResult.Days} días para del sexo {sex}", "Ok");
