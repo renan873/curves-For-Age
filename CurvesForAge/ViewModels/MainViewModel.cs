@@ -59,7 +59,7 @@ public class MainViewModel : ViewModelBase
     }
 
     public ICommand CalcCommand { get; private set; }
-    public INavigation Navigation { get; set; }
+    public INavigation? Navigation { get; set; }
 
     #endregion
 
@@ -76,16 +76,14 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        await Navigation.PushAsync(new ResultPage(new DataForAgesRequest
+        await Navigation?.PushAsync(new ResultPage(new DataForAgesRequest
         {
             Sex = Sex,
             Height = Height,
             Weight = Weight,
             Hc = HeadCircumference,
             Dob = SelectedDate
-        }));
-
-        //await Shell.Current.GoToAsync($"///result?height={Height}&weight={Weight}&hc={HeadCircumference}&dob={SelectedDate}&sex={Sex}");
+        }))!;
     }
 
     private void ChangedSelectedDate() => HeadCircumferenceVisible = SelectedDate > DateTime.Today.AddYears(-2);

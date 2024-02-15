@@ -2,7 +2,7 @@
 using CurvesForAge.Data;
 using CurvesForAge.ViewModels;
 using CurvesForAge.Views;
-using Microsoft.Extensions.Logging;
+using SkiaSharp.Views.Maui.Controls.Hosting; 
 
 namespace CurvesForAge;
 
@@ -12,6 +12,7 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
         builder
+            .UseSkiaSharp(true) 
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
@@ -28,9 +29,9 @@ public static class MauiProgram
         if (!File.Exists(databasePath))
         {
             var assembly = IntrospectionExtensions.GetTypeInfo(typeof(App)).Assembly;
-            using Stream stream = assembly.GetManifestResourceStream("CurvesForAge.Resources.curves.sqlite");
+            using Stream? stream = assembly.GetManifestResourceStream("CurvesForAge.Resources.curves.sqlite");
             using MemoryStream memoryStream = new MemoryStream();
-            stream.CopyTo(memoryStream);
+            stream?.CopyTo(memoryStream);
 
             File.WriteAllBytes(databasePath, memoryStream.ToArray());
         }

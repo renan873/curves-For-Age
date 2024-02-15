@@ -2,6 +2,7 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="CurvesForAge.Views.ResultPage"
              Title="Resultados">
     <ScrollView>
@@ -15,14 +16,40 @@
                 SemanticProperties.Description="Kid Height measure" />
             <Label Style="{StaticResource SubHeadline}"
                    Text="{Binding MainMessage}" />
-            
-            <Label Text="{Binding HeightResult}" />
-            
-            <Label Text="{Binding WeightResult}" />
-            
+
+            <Grid IsVisible="{Binding BmiResultVisible}">
+                <lvc:CartesianChart HeightRequest="300"
+                                    Series="{Binding BmiSeries}"
+                                    ZoomMode="X" />
+            </Grid>
+
             <Label Text="{Binding BmiResult}" />
-            
-            <Label Text="{Binding HcResult}" />
+
+            <Grid IsVisible="{Binding HeightResultVisible}">
+                <lvc:CartesianChart HeightRequest="300"
+                                    Series="{Binding HeightSeries}"
+                                    ZoomMode="X" />
+            </Grid>
+
+            <Label Text="{Binding HeightResult}" />
+
+            <Grid IsVisible="{Binding WeightResultVisible}">
+                <lvc:CartesianChart HeightRequest="300"
+                                    Series="{Binding WeightSeries}"
+                                    ZoomMode="X" />
+            </Grid>
+
+            <Label IsVisible="{Binding WeightResultVisible}"
+                   Text="{Binding WeightResult}" />
+
+            <Grid IsVisible="{Binding HcResultVisible}">
+                <lvc:CartesianChart HeightRequest="300"
+                                    Series="{Binding HcSeries}"
+                                    ZoomMode="X" />
+            </Grid>
+
+            <Label IsVisible="{Binding HcResultVisible}"
+                   Text="{Binding HcResult}" />
         </VerticalStackLayout>
     </ScrollView>
 
