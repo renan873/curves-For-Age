@@ -175,8 +175,8 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     {
         var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
 
-        var initDay = observablePoint.X - 500;
-        var lastDay = observablePoint.X + 500;
+        var initDay = observablePoint.X - 1000;
+        var lastDay = observablePoint.X + 1000;
 
         var data = await dataForAgeTable
             .Where(x => x.Sex == request.Sex && x.Type == type && x.Days > initDay && x.Days < lastDay)
@@ -294,7 +294,8 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
             {
                 Values = new[] {observablePoint},
                 Fill = null,
-                GeometrySize = 0,
+                GeometrySize = 2,
+                GeometryFill = new SolidColorPaint(SKColors.Black),
                 LineSmoothness = 1,
                 Stroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
                 GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
@@ -302,16 +303,16 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
 
         return
         [
-            dMinus4,
+            //dMinus4,
             dMinus3,
             dMinus2,
-            dMinus1,
+            //dMinus1,
             d0,
-            d1,
+            //d1,
             d2,
             d3,
-            d4,
-            result
+            //d4,
+            result,
         ];
     }
 
