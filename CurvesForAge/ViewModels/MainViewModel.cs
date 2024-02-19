@@ -9,6 +9,7 @@ public class MainViewModel : ViewModelBase
 {
     private DateTime _maxDate = DateTime.Today;
     private DateTime _selectedDate = DateTime.Today;
+    private DateTime _takenDate = DateTime.Today;
     private float _height;
     private float _weight;
     private bool _headCircumferenceVisible = true;
@@ -26,6 +27,12 @@ public class MainViewModel : ViewModelBase
     {
         get => _selectedDate;
         set => SetValue(ref _selectedDate, value, ChangedSelectedDate);
+    }
+
+    public DateTime TakenDate
+    {
+        get => _takenDate;
+        set => SetValue(ref _takenDate, value, ChangedSelectedDate);
     }
 
     public float Height
@@ -70,9 +77,40 @@ public class MainViewModel : ViewModelBase
 
     private async void CalcMethod()
     {
+        var bmi = float.Round((Weight * 10000) / (Height * Height), 2);
+        
         if (string.IsNullOrEmpty(Sex))
         {
             Application.Current?.MainPage?.DisplayAlert("Alerta","El Sexo de la persona es requerido", "Ok");
+            return;
+        }
+
+        
+        if (Height < 10)
+        {
+            Application.Current?.MainPage?.DisplayAlert("Alerta","La estatura debe ser superior a 10 cm", "Ok");
+            return;
+        }
+
+        
+        if (Weight < 1)
+        {
+            Application.Current?.MainPage?.DisplayAlert("Alerta","El peso no puede ser inferior a 1 Kg", "Ok");
+            return;
+        }
+
+        if (bmi > 50)
+        {
+            Application.Current?.MainPage?.DisplayAlert("Alerta",$"El IMC calculado es de {bmi} " +
+                                                                 $"por lo que sale completamente del cálculo (IMC máximo de 50)" +
+                                                                 $"", "Ok");
+            return;
+        }
+
+        if (TakenDate < SelectedDate)
+        {
+            Application.Current?.MainPage?.DisplayAlert("Alerta","La fecha de toma de datos no puede ser inferior a " +
+                                                                 "la fecha de nacimiento", "Ok");
             return;
         }
 
@@ -82,13 +120,17 @@ public class MainViewModel : ViewModelBase
             Height = Height,
             Weight = Weight,
             Hc = HeadCircumference,
-            Dob = SelectedDate
+            Dob = SelectedDate,
+            Take = TakenDate
         }))!;
     }
 
     private void ChangedSelectedDate() => HeadCircumferenceVisible = SelectedDate > DateTime.Today.AddYears(-2);
 
-    private void ChangedHeight() => Height = Height > 250 ? 250 : Height;
+    private void ChangedHeight()
+    {
+        Height = Height > 250 ? 250 : Height;
+    }
 
     private void ChangedWeight() => Weight = Weight > 250 ? 250 : Weight;
     

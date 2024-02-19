@@ -19,7 +19,7 @@
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Ingresa los datos de la persona a calcular" />
-            
+
             <StackLayout RadioButtonGroup.GroupName="Sexo"
                          RadioButtonGroup.SelectedValue="{Binding Sex}"
                          Orientation="Horizontal">
@@ -29,20 +29,46 @@
                 <RadioButton Content="Mujer"
                              Value="F" />
             </StackLayout>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Text="Fecha de nacimiento" />
+                <DatePicker Grid.Row="1" Grid.Column="0" 
+                            MinimumDate="01/01/1950"
+                            MaximumDate="{Binding MaxDate}"
+                            Date="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}" />
 
-            <Label Text="Fecha de nacimiento" />
-            <DatePicker MinimumDate="01/01/1950"
-                        MaximumDate="{Binding MaxDate}"
-                        Date="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}" />
+                <Label Grid.Row="0" Grid.Column="1" Text="Toma de datos" />
+                <DatePicker Grid.Row="1" Grid.Column="1" 
+                            MinimumDate="01/01/1950"
+                            MaximumDate="{Binding MaxDate}"
+                            Date="{Binding TakenDate, StringFormat='{0:yyyy-MM-dd}'}" />
+            </Grid>
 
-            <Label Text="Talla - Longitud en cm" />
-            <Entry Placeholder="Talla en cm" Keyboard="Numeric"
-                   Text="{Binding Height}" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Text="Talla - Longitud en cm" />
+                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Talla en cm" Keyboard="Numeric"
+                       Text="{Binding Height}" />
 
-            <Label Text="Peso en Kg" />
-            <Entry Placeholder="Peso en Kg" Keyboard="Numeric"
-                   Text="{Binding Weight}" />
-
+                <Label Grid.Row="0" Grid.Column="1" Text="Peso en Kg" />
+                <Entry Grid.Row="1" Grid.Column="1" Placeholder="Peso en Kg" Keyboard="Numeric"
+                                   Text="{Binding Weight}" />
+            </Grid>
             <Label Text="Perímetro Cefálico" IsVisible="{Binding HeadCircumferenceVisible}" />
             <Entry Placeholder="Perímetro Cefálico"
                    IsVisible="{Binding HeadCircumferenceVisible}"
@@ -50,8 +76,8 @@
                    Text="{Binding HeadCircumference}" />
 
             <Button Text="Calcular"
-                Command="{Binding CalcCommand}"
-                HorizontalOptions="Fill" />
+                    Command="{Binding CalcCommand}"
+                    HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 

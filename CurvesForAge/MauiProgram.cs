@@ -2,6 +2,7 @@
 using CurvesForAge.Data;
 using CurvesForAge.ViewModels;
 using CurvesForAge.Views;
+using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting; 
 
 namespace CurvesForAge;

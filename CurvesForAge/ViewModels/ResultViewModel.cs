@@ -71,7 +71,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         get => _heightResultVisible;
         set => SetValue(ref _heightResultVisible, value);
     }
-    
+
     public bool HcResultVisible
     {
         get => _hcResultVisible;
@@ -108,67 +108,74 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         set => SetValue(ref _hcSeries, value);
     }
 
+    public Axis[] XAxes { get; set; } = [];
+
     #endregion
 
 
     public async Task LoadDataAsync()
     {
-        var sex = request.Sex;
-
-        var days = (DateTime.Now - request.Dob).TotalDays;
-
-        var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
-
-        MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {request.Bmi}, " +
-                      $"lo que nos da el siguiente resultado:";
-
-        var bmiResult = await dataForAgeTable
-            .Where(x => x.Sex == sex && x.Type == "BMIForAge" && x.Days < days)
-            .OrderByDescending(x => x.Days)
-            .FirstAsync() ?? new DataForAge();
-
-        var heightResult = await dataForAgeTable
-            .Where(x => x.Sex == sex && x.Type == "HeightForAge" && x.Days < days)
-            .OrderByDescending(x => x.Days)
-            .FirstAsync() ?? new DataForAge();
-
-        BmiResult = DefineCase(bmiResult, request.Bmi, "un IMC") + ".";
-        HeightResult = DefineCase(heightResult, request.Height, "una talla - longitud") + ".";
-
-        if (days < 6980)
+        try
         {
-            BmiSeries = await ChartGeneration("BMIForAge", new ObservablePoint(days, request.Bmi));
-            BmiResultVisible = true;
-            HeightSeries = await ChartGeneration("HeightForAge", new ObservablePoint(days, request.Height));
-            HeightResultVisible = true;
-        }
+            var sex = request.Sex;
 
-        if (days < 3686)
-        {
-            var weightResult = await dataForAgeTable
-                .Where(x => x.Sex == sex && x.Type == "WeightForAge" && x.Days < days)
+            var days = (request.Take - request.Dob).TotalDays;
+
+            var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
+
+            MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {request.Bmi}, " +
+                          $"lo que nos da el siguiente resultado:";
+
+            var bmiResult = await dataForAgeTable
+                .Where(x => x.Sex == sex && x.Type == "BMIForAge" && x.Days <= days)
                 .OrderByDescending(x => x.Days)
                 .FirstAsync() ?? new DataForAge();
 
-            WeightResult = DefineCase(weightResult, request.Weight, "un peso") + ".";
-            WeightSeries = await ChartGeneration("WeightForAge", new ObservablePoint(days, request.Weight));
-            WeightResultVisible = true;
-        }
-
-        if (days < 1856)
-        {
-            var hcResult = await dataForAgeTable
-                .Where(x => x.Sex == sex && x.Type == "HCForAge" && x.Days < days)
+            var heightResult = await dataForAgeTable
+                .Where(x => x.Sex == sex && x.Type == "HeightForAge" && x.Days <= days)
                 .OrderByDescending(x => x.Days)
                 .FirstAsync() ?? new DataForAge();
 
-            HcResult = DefineCase(hcResult, request.Hc, "un perímetro cefálico") + ".";
-            HcSeries = await ChartGeneration("HCForAge", new ObservablePoint(days, request.Hc));
-            HcResultVisible = true;
-        }
+            BmiResult = DefineCase(bmiResult, request.Bmi, "un IMC") + ".";
+            HeightResult = DefineCase(heightResult, request.Height, "una talla - longitud") + ".";
 
-        //Application.Current?.MainPage?.DisplayAlert("Alerta",
-        //    $"el registro es de {bmiResult.Days} días para del sexo {sex}", "Ok");
+            if (days < 6980)
+            {
+                BmiSeries = await ChartGeneration("BMIForAge", new ObservablePoint(days, request.Bmi));
+                BmiResultVisible = true;
+                HeightSeries = await ChartGeneration("HeightForAge", new ObservablePoint(days, request.Height));
+                HeightResultVisible = true;
+            }
+
+            if (days < 3686)
+            {
+                var weightResult = await dataForAgeTable
+                    .Where(x => x.Sex == sex && x.Type == "WeightForAge" && x.Days <= days)
+                    .OrderByDescending(x => x.Days)
+                    .FirstAsync() ?? new DataForAge();
+
+                WeightResult = DefineCase(weightResult, request.Weight, "un peso") + ".";
+                WeightSeries = await ChartGeneration("WeightForAge", new ObservablePoint(days, request.Weight));
+                WeightResultVisible = true;
+            }
+
+            if (days < 1856)
+            {
+                var hcResult = await dataForAgeTable
+                    .Where(x => x.Sex == sex && x.Type == "HCForAge" && x.Days <= days)
+                    .OrderByDescending(x => x.Days)
+                    .FirstAsync() ?? new DataForAge();
+
+                HcResult = DefineCase(hcResult, request.Hc, "un perímetro cefálico") + ".";
+                HcSeries = await ChartGeneration("HCForAge", new ObservablePoint(days, request.Hc));
+                HcResultVisible = true;
+            }
+        }
+        catch (Exception e)
+        {
+            Application.Current?.MainPage?.DisplayAlert("Error",
+                e.Message, "Ok");
+        }
     }
 
     private async Task<LineSeries<ObservablePoint>[]> ChartGeneration(string type, ObservablePoint observablePoint)
@@ -298,7 +305,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 GeometryFill = new SolidColorPaint(SKColors.Black),
                 LineSmoothness = 1,
                 Stroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
-                GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
+                GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 3},
             };
 
         return
