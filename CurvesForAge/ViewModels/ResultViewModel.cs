@@ -27,6 +27,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     private ISeries[] _weightSeries = Array.Empty<ISeries>();
     private ISeries[] _heightSeries = Array.Empty<ISeries>();
     private ISeries[] _hcSeries = Array.Empty<ISeries>();
+    private Axis[] _xAxes = [new TimeSpanAxis(TimeSpan.FromDays(365), date => (date.Days / 365) + " años")];
 
     #region Bindings
 
@@ -108,7 +109,11 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         set => SetValue(ref _hcSeries, value);
     }
 
-    public Axis[] XAxes { get; set; } = [];
+    public Axis[] XAxes
+    {
+        get => _xAxes;
+        set => SetValue(ref _xAxes, value);
+    }
 
     #endregion
 
@@ -141,9 +146,10 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
 
             if (days < 6980)
             {
-                BmiSeries = await ChartGeneration("BMIForAge", new ObservablePoint(days, request.Bmi));
+                BmiSeries = await ChartGeneration("BMIForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Bmi));
                 BmiResultVisible = true;
-                HeightSeries = await ChartGeneration("HeightForAge", new ObservablePoint(days, request.Height));
+                HeightSeries = await ChartGeneration("HeightForAge",
+                    new TimeSpanPoint(TimeSpan.FromDays(days), request.Height));
                 HeightResultVisible = true;
             }
 
@@ -155,7 +161,8 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .FirstAsync() ?? new DataForAge();
 
                 WeightResult = DefineCase(weightResult, request.Weight, "un peso") + ".";
-                WeightSeries = await ChartGeneration("WeightForAge", new ObservablePoint(days, request.Weight));
+                WeightSeries = await ChartGeneration("WeightForAge",
+                    new TimeSpanPoint(TimeSpan.FromDays(days), request.Weight));
                 WeightResultVisible = true;
             }
 
@@ -167,7 +174,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .FirstAsync() ?? new DataForAge();
 
                 HcResult = DefineCase(hcResult, request.Hc, "un perímetro cefálico") + ".";
-                HcSeries = await ChartGeneration("HCForAge", new ObservablePoint(days, request.Hc));
+                HcSeries = await ChartGeneration("HCForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Hc));
                 HcResultVisible = true;
             }
         }
@@ -178,19 +185,19 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         }
     }
 
-    private async Task<LineSeries<ObservablePoint>[]> ChartGeneration(string type, ObservablePoint observablePoint)
+    private async Task<LineSeries<TimeSpanPoint>[]> ChartGeneration(string type, TimeSpanPoint observablePoint)
     {
         var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
 
-        var initDay = observablePoint.X - 1000;
-        var lastDay = observablePoint.X + 1000;
+        var initDay = observablePoint.TimeSpan.Days - 1000;
+        var lastDay = observablePoint.TimeSpan.Days + 1000;
 
         var data = await dataForAgeTable
             .Where(x => x.Sex == request.Sex && x.Type == type && x.Days > initDay && x.Days < lastDay)
             .OrderBy(x => x.Days)
             .ToListAsync() ?? new List<DataForAge>();
 
-        List<ObservablePoint> dMinus4Array = new(),
+        List<TimeSpanPoint> dMinus4Array = new(),
             dMinus3Array = new(),
             dMinus2Array = new(),
             dMinus1Array = new(),
@@ -204,19 +211,19 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         {
             foreach (var record in data)
             {
-                dMinus4Array.Add(new ObservablePoint(record.Days, (double) record.Sd4Neg));
-                dMinus3Array.Add(new ObservablePoint(record.Days, (double) record.Sd3Neg));
-                dMinus2Array.Add(new ObservablePoint(record.Days, (double) record.Sd2Neg));
-                dMinus1Array.Add(new ObservablePoint(record.Days, (double) record.Sd1Neg));
-                d0Array.Add(new ObservablePoint(record.Days, (double) record.Sd0));
-                d1Array.Add(new ObservablePoint(record.Days, (double) record.Sd1));
-                d2Array.Add(new ObservablePoint(record.Days, (double) record.Sd2));
-                d3Array.Add(new ObservablePoint(record.Days, (double) record.Sd3));
-                d4Array.Add(new ObservablePoint(record.Days, (double) record.Sd4));
+                dMinus4Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd4Neg));
+                dMinus3Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd3Neg));
+                dMinus2Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd2Neg));
+                dMinus1Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd1Neg));
+                d0Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd0));
+                d1Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd1));
+                d2Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd2));
+                d3Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd3));
+                d4Array.Add(new TimeSpanPoint(TimeSpan.FromDays(record.Days), (double) record.Sd4));
             }
         }
 
-        LineSeries<ObservablePoint> dMinus4 = new()
+        LineSeries<TimeSpanPoint> dMinus4 = new()
             {
                 Values = dMinus4Array.ToArray(),
                 Fill = null,
