@@ -43,13 +43,15 @@
                 <DatePicker Grid.Row="1" Grid.Column="0" 
                             MinimumDate="01/01/1950"
                             MaximumDate="{Binding MaxDate}"
-                            Date="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}" />
+                            Format="yyyy-MM-dd"
+                            Date="{Binding SelectedDate}" />
 
                 <Label Grid.Row="0" Grid.Column="1" Text="Toma de datos" />
                 <DatePicker Grid.Row="1" Grid.Column="1" 
                             MinimumDate="01/01/1950"
                             MaximumDate="{Binding MaxDate}"
-                            Date="{Binding TakenDate, StringFormat='{0:yyyy-MM-dd}'}" />
+                            Format="yyyy-MM-dd"
+                            Date="{Binding TakenDate}" />
             </Grid>
 
             <Grid>

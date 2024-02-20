@@ -13,11 +13,16 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     private readonly DatabaseContext _context = new();
 
     private string _mainMessage = "";
+    private string _bmiText = "";
+    private string _heightText = "";
+    private string _weightTextInit = ".";
+    private string _weightText = "";
     private string _bmiResult = "";
     private string _weightResult = "";
     private string _heightResult = "";
     private string _hcResult = "";
 
+    private bool _resultVisible = false;
     private bool _bmiResultVisible = false;
     private bool _weightResultVisible = false;
     private bool _heightResultVisible = false;
@@ -27,7 +32,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     private ISeries[] _weightSeries = Array.Empty<ISeries>();
     private ISeries[] _heightSeries = Array.Empty<ISeries>();
     private ISeries[] _hcSeries = Array.Empty<ISeries>();
-    private Axis[] _xAxes = [new TimeSpanAxis(TimeSpan.FromDays(365), date => (date.Days / 365) + " años")];
+    private Axis[] _xAxes = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
 
     #region Bindings
 
@@ -35,6 +40,30 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     {
         get => _mainMessage;
         set => SetValue(ref _mainMessage, value);
+    }
+
+    public string BmiText
+    {
+        get => _bmiText;
+        set => SetValue(ref _bmiText, value);
+    }
+
+    public string HeightText
+    {
+        get => _heightText;
+        set => SetValue(ref _heightText, value);
+    }
+
+    public string WeightTextInit
+    {
+        get => _weightTextInit;
+        set => SetValue(ref _weightTextInit, value);
+    }
+
+    public string WeightText
+    {
+        get => _weightText;
+        set => SetValue(ref _weightText, value);
     }
 
     public string BmiResult
@@ -53,6 +82,12 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     {
         get => _heightResult;
         set => SetValue(ref _heightResult, value);
+    }
+
+    public bool ResultVisible
+    {
+        get => _resultVisible;
+        set => SetValue(ref _resultVisible, value);
     }
 
     public bool BmiResultVisible
@@ -128,6 +163,8 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
 
             var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
 
+            int? weightCase = null;
+
             MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {request.Bmi}, " +
                           $"lo que nos da el siguiente resultado:";
 
@@ -141,8 +178,11 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 .OrderByDescending(x => x.Days)
                 .FirstAsync() ?? new DataForAge();
 
-            BmiResult = DefineCase(bmiResult, request.Bmi, "un IMC") + ".";
-            HeightResult = DefineCase(heightResult, request.Height, "una talla - longitud") + ".";
+            var bmiResultTuple = DefineCase(bmiResult, request.Bmi, "un IMC");
+            var heightResultTuple = DefineCase(bmiResult, request.Bmi, "una talla - longitud");
+
+            BmiResult = bmiResultTuple.Item1 + ".";
+            HeightResult = heightResultTuple.Item1 + ".";
 
             if (days < 6980)
             {
@@ -160,10 +200,13 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .OrderByDescending(x => x.Days)
                     .FirstAsync() ?? new DataForAge();
 
-                WeightResult = DefineCase(weightResult, request.Weight, "un peso") + ".";
+                var weightResultTuple = DefineCase(weightResult, request.Weight, "un peso");
+                WeightResult = weightResultTuple.Item1 + ".";
                 WeightSeries = await ChartGeneration("WeightForAge",
                     new TimeSpanPoint(TimeSpan.FromDays(days), request.Weight));
                 WeightResultVisible = true;
+
+                weightCase = weightResultTuple.Item2;
             }
 
             if (days < 1856)
@@ -173,10 +216,13 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .OrderByDescending(x => x.Days)
                     .FirstAsync() ?? new DataForAge();
 
-                HcResult = DefineCase(hcResult, request.Hc, "un perímetro cefálico") + ".";
+                var hcResultTuple = DefineCase(hcResult, request.Weight, "un perímetro cefálico");
+                HcResult = hcResultTuple.Item1 + ".";
                 HcSeries = await ChartGeneration("HCForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Hc));
                 HcResultVisible = true;
             }
+
+            AnalysisResult(bmiResultTuple.Item2, heightResultTuple.Item2, weightCase);
         }
         catch (Exception e)
         {
@@ -330,7 +376,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         ];
     }
 
-    private string DefineCase(DataForAge register, float value, string text)
+    private Tuple<string, int> DefineCase(DataForAge register, float value, string text)
     {
         var isMale = text.Substring(0, 3) != "una";
 
@@ -339,59 +385,112 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
 
         if ((float) register.Sd4Neg > value)
         {
-            return $"La persona tiene {text} por debajo de la DE -4, " +
-                   $" lo que indica que tiene {text} muy {low} para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} por debajo de la DE -4, lo que indica que tiene {text} muy {low} para la edad",
+                -4
+            );
         }
 
         if ((float) register.Sd3Neg > value)
         {
-            return $"La persona tiene {text} entre la DE -3 y la DE -4, " +
-                   $" lo que indica que tiene {text} muy {low} para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE -3 y la DE -4, lo que indica que tiene {text} muy {low} para la edad",
+                -3
+            );
         }
 
         if ((float) register.Sd2Neg > value)
         {
-            return $"La persona tiene {text} entre la DE -2 y la DE -3, " +
-                   $" lo que indica que tiene {text} {low} para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE -2 y la DE -3, lo que indica que tiene {text} {low} para la edad",
+                -2
+            );
         }
 
         if ((float) register.Sd1Neg > value)
         {
-            return $"La persona tiene {text} entre la DE -1 y la DE -2, " +
-                   $" lo que indica que tiene {text} normal para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE -1 y la DE -2, lo que indica que tiene {text} normal para la edad",
+                -1
+            );
         }
 
         if ((float) register.Sd0 > value)
         {
-            return $"La persona tiene {text} entre la DE 0 y la DE -1, " +
-                   $" lo que indica que tiene {text} normal para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE 0 y la DE -1, lo que indica que tiene {text} normal para la edad",
+                0
+            );
         }
 
         if ((float) register.Sd1 > value)
         {
-            return $"La persona tiene {text} entre la DE 1 y la DE 0, " +
-                   $" lo que indica que tiene {text} normal para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE 1 y la DE 0, lo que indica que tiene {text} normal para la edad",
+                0
+            );
         }
 
         if ((float) register.Sd2 > value)
         {
-            return $"La persona tiene {text} entre la DE 2 y la DE 1, " +
-                   $" lo que indica que tiene {text} normal para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE 2 y la DE 1, lo que indica que tiene {text} normal para la edad",
+                1
+            );
         }
 
         if ((float) register.Sd3 > value)
         {
-            return $"La persona tiene {text} entre la DE 3 y la DE 2, " +
-                   $" lo que indica que tiene {text} {high} para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE 3 y la DE 2, lo que indica que tiene {text} {high} para la edad",
+                2
+            );
         }
 
         if ((float) register.Sd4 > value)
         {
-            return $"La persona tiene {text} entre la DE 4 y la DE 3, " +
-                   $" lo que indica que tiene {text} {high} para la edad";
+            return new Tuple<string, int>(
+                $"La persona tiene {text} entre la DE 4 y la DE 3, lo que indica que tiene {text} {high} para la edad",
+                3
+            );
         }
 
-        return $"La persona tiene {text} por encima de la DE 4, " +
-               $" lo que indica que tiene {text} muy {high} para la edad";
+        return new Tuple<string, int>(
+            $"La persona tiene {text} por encima de la DE 4, lo que indica que tiene {text} muy {high} para la edad",
+            4
+        );
+    }
+
+    private void AnalysisResult(int bmiCase, int heightCase, int? weightCase)
+    {
+        BmiText = bmiCase switch
+        {
+            > 2 => "obeso",
+            2 => "con sobrepeso",
+            1 => "con riesgo de sobrepeso",
+            -3 or -2 => "emaciado",
+            < -3 => "severamente emaciado",
+            _ => "normal"
+        };
+
+        HeightText = heightCase switch
+        {
+            -2 => "baja talla",
+            < -2 => "baja talla severa",
+            _ => "normal"
+        };
+
+        if (weightCase != null)
+        {
+            WeightTextInit = ", en función del peso se tiene que el estado es ";
+
+            WeightText += weightCase switch
+            {
+                -2 => "bajo peso",
+                < -2 => "bajo peso severo",
+                _ => "normal"
+            } + ".";
+        }
+        ResultVisible = true;
     }
 }

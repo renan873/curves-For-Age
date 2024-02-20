@@ -17,6 +17,19 @@
             <Label Style="{StaticResource SubHeadline}"
                    Text="{Binding MainMessage}" />
 
+            <Label IsVisible="{Binding ResultVisible}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Dada la edad y su IMC nos indica que su estado es " FontSize="16" />
+                        <Span Text="{Binding BmiText}" FontAttributes="Bold" FontSize="16" />
+                        <Span Text=", con respecto a la talla tenemos que el estado es " FontSize="16" />
+                        <Span Text="{Binding HeightText}" FontAttributes="Bold" FontSize="16" />
+                        <Span Text="{Binding WeightTextInit}" FontSize="16" />
+                        <Span Text="{Binding WeightText}" FontAttributes="Bold" FontSize="16" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+
             <Grid IsVisible="{Binding BmiResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
                                     Series="{Binding BmiSeries}"
