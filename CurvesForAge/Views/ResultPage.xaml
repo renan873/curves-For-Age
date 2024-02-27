@@ -3,12 +3,20 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             xmlns:controls="clr-namespace:Plugin.MauiMTAdmob.Controls;assembly=Plugin.MauiMtAdmob"
              x:Class="CurvesForAge.Views.ResultPage"
              Title="Resultados">
     <ScrollView>
         <VerticalStackLayout
             Padding="30,0"
-            Spacing="25">
+            Spacing="25" VerticalOptions="Center">
+
+            <controls:MTAdView x:Name="AddMobBanner"
+                               AdsId="ca-app-pub-5964431097928350/9027152593"
+                               BackgroundColor="Red"
+                               Height="100">
+            </controls:MTAdView>
+
             <Image
                 Source="kid_height_measure.png"
                 HeightRequest="95"

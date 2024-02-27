@@ -3,6 +3,7 @@ using CurvesForAge.Data;
 using CurvesForAge.ViewModels;
 using CurvesForAge.Views;
 using Microsoft.Extensions.Logging;
+using Plugin.MauiMTAdmob;
 using SkiaSharp.Views.Maui.Controls.Hosting; 
 
 namespace CurvesForAge;
@@ -15,6 +16,7 @@ public static class MauiProgram
         builder
             .UseSkiaSharp(true) 
             .UseMauiApp<App>()
+            .UseMauiMTAdmob()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
