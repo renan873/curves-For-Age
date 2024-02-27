@@ -18,3 +18,5 @@ gen
 */obj/*.targets
 */obj/*.info
 */obj/*.cache
+/CurvesForAge/CurvesForAge.csproj.user
+/.vs
