@@ -32,7 +32,10 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     private ISeries[] _weightSeries = Array.Empty<ISeries>();
     private ISeries[] _heightSeries = Array.Empty<ISeries>();
     private ISeries[] _hcSeries = Array.Empty<ISeries>();
-    private Axis[] _xAxes = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
+    private Axis[] _xAxeBmi = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
+    private Axis[] _xAxeHeight = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
+    private Axis[] _xAxeWeight = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
+    private Axis[] _xAxeHc = [new TimeSpanAxis(TimeSpan.FromDays(365), timeSpan => timeSpan.Days / 365 + " años")];
 
     #region Bindings
 
@@ -144,10 +147,28 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         set => SetValue(ref _hcSeries, value);
     }
 
-    public Axis[] XAxes
+    public Axis[] XAxeBmi
     {
-        get => _xAxes;
-        set => SetValue(ref _xAxes, value);
+        get => _xAxeBmi;
+        set => SetValue(ref _xAxeBmi, value);
+    }
+
+    public Axis[] XAxeHeight
+    {
+        get => _xAxeHeight;
+        set => SetValue(ref _xAxeHeight, value);
+    }
+
+    public Axis[] XAxeWeight
+    {
+        get => _xAxeWeight;
+        set => SetValue(ref _xAxeWeight, value);
+    }
+
+    public Axis[] XAxeHc
+    {
+        get => _xAxeHc;
+        set => SetValue(ref _xAxeHc, value);
     }
 
     #endregion
@@ -216,7 +237,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .OrderByDescending(x => x.Days)
                     .FirstAsync() ?? new DataForAge();
 
-                var hcResultTuple = DefineCase(hcResult, request.Weight, "un perímetro cefálico");
+                var hcResultTuple = DefineCase(hcResult, request.Hc, "un perímetro cefálico");
                 HcResult = hcResultTuple.Item1 + ".";
                 HcSeries = await ChartGeneration("HCForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Hc));
                 HcResultVisible = true;

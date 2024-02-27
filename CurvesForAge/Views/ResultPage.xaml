@@ -33,7 +33,7 @@
             <Grid IsVisible="{Binding BmiResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
                                     Series="{Binding BmiSeries}"
-                                    XAxes="{Binding XAxes}"
+                                    XAxes="{Binding XAxeBmi}"
                                     ZoomMode="X" />
             </Grid>
 
@@ -42,7 +42,7 @@
             <Grid IsVisible="{Binding HeightResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
                                     Series="{Binding HeightSeries}"
-                                    XAxes="{Binding XAxes}"
+                                    XAxes="{Binding XAxeHeight}"
                                     ZoomMode="X" />
             </Grid>
 
@@ -51,7 +51,7 @@
             <Grid IsVisible="{Binding WeightResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
                                     Series="{Binding WeightSeries}"
-                                    XAxes="{Binding XAxes}"
+                                    XAxes="{Binding XAxeWeight}"
                                     ZoomMode="X" />
             </Grid>
 
@@ -61,7 +61,7 @@
             <Grid IsVisible="{Binding HcResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
                                     Series="{Binding HcSeries}"
-                                    XAxes="{Binding XAxes}"
+                                    XAxes="{Binding XAxeHc}"
                                     ZoomMode="X" />
             </Grid>
 
