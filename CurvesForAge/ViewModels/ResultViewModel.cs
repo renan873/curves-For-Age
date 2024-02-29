@@ -200,7 +200,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 .FirstAsync() ?? new DataForAge();
 
             var bmiResultTuple = DefineCase(bmiResult, request.Bmi, "un IMC");
-            var heightResultTuple = DefineCase(bmiResult, request.Bmi, "una talla - longitud");
+            var heightResultTuple = DefineCase(bmiResult, request.Height, "una talla - longitud");
 
             BmiResult = bmiResultTuple.Item1 + ".";
             HeightResult = heightResultTuple.Item1 + ".";
