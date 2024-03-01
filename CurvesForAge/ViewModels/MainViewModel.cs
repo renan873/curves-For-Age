@@ -1,5 +1,4 @@
 using System.Windows.Input;
-using CurvesForAge.Data;
 using CurvesForAge.Models;
 using CurvesForAge.Views;
 
@@ -17,6 +16,7 @@ public class MainViewModel : ViewModelBase
     private string? _sex;
 
     #region bindings
+
     public DateTime MaxDate
     {
         get => _maxDate;
@@ -77,40 +77,40 @@ public class MainViewModel : ViewModelBase
 
     private async void CalcMethod()
     {
-        var bmi = float.Round((Weight * 10000) / (Height * Height), 2);
-        
+        var bmi = float.Round(Weight * 10000 / (Height * Height), 2);
+
         if (string.IsNullOrEmpty(Sex))
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta","El Sexo de la persona es requerido", "Ok");
+            Application.Current?.MainPage?.DisplayAlert("Alerta", "El Sexo de la persona es requerido", "Ok");
             return;
         }
 
-        
+
         if (Height < 10)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta","La estatura debe ser superior a 10 cm", "Ok");
+            Application.Current?.MainPage?.DisplayAlert("Alerta", "La estatura debe ser superior a 10 cm", "Ok");
             return;
         }
 
-        
+
         if (Weight < 1)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta","El peso no puede ser inferior a 1 Kg", "Ok");
+            Application.Current?.MainPage?.DisplayAlert("Alerta", "El peso no puede ser inferior a 1 Kg", "Ok");
             return;
         }
 
         if (bmi > 50)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta",$"El IMC calculado es de {bmi} " +
-                                                                 $"por lo que sale completamente del cálculo (IMC máximo de 50)" +
-                                                                 $"", "Ok");
+            Application.Current?.MainPage?.DisplayAlert("Alerta", $"El IMC calculado es de {bmi} " +
+                                                                  $"por lo que sale completamente del cálculo (IMC máximo de 50)" +
+                                                                  $"", "Ok");
             return;
         }
 
         if (TakenDate < SelectedDate)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta","La fecha de toma de datos no puede ser inferior a " +
-                                                                 "la fecha de nacimiento", "Ok");
+            Application.Current?.MainPage?.DisplayAlert("Alerta", "La fecha de toma de datos no puede ser inferior a " +
+                                                                  "la fecha de nacimiento", "Ok");
             return;
         }
 
@@ -127,12 +127,9 @@ public class MainViewModel : ViewModelBase
 
     private void ChangedSelectedDate() => HeadCircumferenceVisible = SelectedDate > DateTime.Today.AddYears(-2);
 
-    private void ChangedHeight()
-    {
-        Height = Height > 250 ? 250 : Height;
-    }
+    private void ChangedHeight() => Height = Height > 250 ? 250 : Height;
 
-    private void ChangedWeight() => Weight = Weight > 250 ? 250 : Weight;
-    
+    private void ChangedWeight() => Weight = Weight > 300 ? 300 : Weight;
+
     private void ChangedHeadCircumference() => HeadCircumference = HeadCircumference > 90 ? 90 : HeadCircumference;
 }

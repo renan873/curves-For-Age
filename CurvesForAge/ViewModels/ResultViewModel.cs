@@ -22,11 +22,11 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     private string _heightResult = "";
     private string _hcResult = "";
 
-    private bool _resultVisible = false;
-    private bool _bmiResultVisible = false;
-    private bool _weightResultVisible = false;
-    private bool _heightResultVisible = false;
-    private bool _hcResultVisible = false;
+    private bool _resultVisible;
+    private bool _bmiResultVisible;
+    private bool _weightResultVisible;
+    private bool _heightResultVisible;
+    private bool _hcResultVisible;
 
     private ISeries[] _bmiSeries = Array.Empty<ISeries>();
     private ISeries[] _weightSeries = Array.Empty<ISeries>();
@@ -200,7 +200,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 .FirstAsync() ?? new DataForAge();
 
             var bmiResultTuple = DefineCase(bmiResult, request.Bmi, "un IMC");
-            var heightResultTuple = DefineCase(bmiResult, request.Height, "una talla - longitud");
+            var heightResultTuple = DefineCase(heightResult, request.Height, "una talla - longitud");
 
             BmiResult = bmiResultTuple.Item1 + ".";
             HeightResult = heightResultTuple.Item1 + ".";
@@ -230,7 +230,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 weightCase = weightResultTuple.Item2;
             }
 
-            if (days < 1856)
+            if (days < 1856 || request.Hc == 0)
             {
                 var hcResult = await dataForAgeTable
                     .Where(x => x.Sex == sex && x.Type == "HCForAge" && x.Days <= days)
@@ -262,19 +262,19 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         var data = await dataForAgeTable
             .Where(x => x.Sex == request.Sex && x.Type == type && x.Days > initDay && x.Days < lastDay)
             .OrderBy(x => x.Days)
-            .ToListAsync() ?? new List<DataForAge>();
+            .ToListAsync() ?? [];
 
-        List<TimeSpanPoint> dMinus4Array = new(),
-            dMinus3Array = new(),
-            dMinus2Array = new(),
-            dMinus1Array = new(),
-            d0Array = new(),
-            d1Array = new(),
-            d2Array = new(),
-            d3Array = new(),
-            d4Array = new();
+        List<TimeSpanPoint> dMinus4Array = [],
+            dMinus3Array = [],
+            dMinus2Array = [],
+            dMinus1Array = [],
+            d0Array = [],
+            d1Array = [],
+            d2Array = [],
+            d3Array = [],
+            d4Array = [];
 
-        if (data.Any())
+        if (data is {Count: > 0})
         {
             foreach (var record in data)
             {
@@ -379,7 +379,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 GeometryFill = new SolidColorPaint(SKColors.Black),
                 LineSmoothness = 1,
                 Stroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
-                GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 3},
+                GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 3}
             };
 
         return
@@ -393,16 +393,16 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
             d2,
             d3,
             //d4,
-            result,
+            result
         ];
     }
 
     private Tuple<string, int> DefineCase(DataForAge register, float value, string text)
     {
-        var isMale = text.Substring(0, 3) != "una";
+        var isMale = text[..3] != "una";
 
-        string low = isMale ? "bajo" : "baja";
-        string high = isMale ? "alto" : "alta";
+        var low = isMale ? "bajo" : "baja";
+        var high = isMale ? "alto" : "alta";
 
         if ((float) register.Sd4Neg > value)
         {

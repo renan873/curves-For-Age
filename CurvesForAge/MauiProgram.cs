@@ -27,13 +27,13 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
         // Copiar la base de datos desde Resources a un directorio accesible
-        string databasePath = Path.Combine(FileSystem.AppDataDirectory, "curves.sqlite");
+        var databasePath = Path.Combine(FileSystem.AppDataDirectory, "curves.sqlite");
 
         if (!File.Exists(databasePath))
         {
             var assembly = IntrospectionExtensions.GetTypeInfo(typeof(App)).Assembly;
-            using Stream? stream = assembly.GetManifestResourceStream("CurvesForAge.Resources.curves.sqlite");
-            using MemoryStream memoryStream = new MemoryStream();
+            using var stream = assembly.GetManifestResourceStream("CurvesForAge.Resources.curves.sqlite");
+            using var memoryStream = new MemoryStream();
             stream?.CopyTo(memoryStream);
 
             File.WriteAllBytes(databasePath, memoryStream.ToArray());
