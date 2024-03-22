@@ -9,12 +9,11 @@
     <ScrollView>
         <VerticalStackLayout
             Padding="30,0"
-            Spacing="25">
+            Spacing="25"
+            VerticalOptions="Start">
 
             <ads:MTAdView x:Name="AdMobBanner"
-                          AdsId="ca-app-pub-5964431097928350/9027152593"
-                          Height="90">
-            </ads:MTAdView>
+                          HeightRequest="{OnIdiom Default=50, Phone=50, Tablet=90, Desktop=120}"/>
 
             <Image
                 Source="kid_height_measure.png"
