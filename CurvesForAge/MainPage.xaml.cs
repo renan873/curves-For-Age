@@ -17,11 +17,14 @@ public partial class MainPage : ContentPage
     
     private void SetBannerId()
     {
-        #if __ANDROID__
-        AdMobBanner.AdsId = "ca-app-pub-5964431097928350/8012461541";
-        #elif __IOS__
-        AdMobBanner.AdsId = "ca-app-pub-5964431097928350/8501763749";
-        #endif
+        AdMobBanner.AdsId = DeviceInfo.Platform == DevicePlatform.Android
+            ? "ca-app-pub-5964431097928350/8012461541"
+            : "ca-app-pub-5964431097928350/8501763749";
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        AdMobBanner.LoadAd();
+    }
 }

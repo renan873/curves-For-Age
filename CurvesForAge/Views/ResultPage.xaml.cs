@@ -16,16 +16,15 @@ public partial class ResultPage : ContentPage
 
     private void SetBannerId()
     {
-#if __ANDROID__
-        AdMobBanner.AdsId = "ca-app-pub-5964431097928350/9027152593";
-#elif __IOS__
-        AdMobBanner.AdsId = "ca-app-pub-5964431097928350/9027152593";
-#endif
+        AdMobBanner.AdsId = DeviceInfo.Platform == DevicePlatform.Android
+            ? "ca-app-pub-5964431097928350/9027152593"
+            : "ca-app-pub-5964431097928350/9027152593";
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        AdMobBanner.LoadAd();
         await _viewModel.LoadDataAsync();
     }
 }
