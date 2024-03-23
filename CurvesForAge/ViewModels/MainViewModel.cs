@@ -81,37 +81,50 @@ public class MainViewModel : ViewModelBase
 
         if (string.IsNullOrEmpty(Sex))
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta", "El Sexo de la persona es requerido", "Ok");
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", "El Sexo de la persona es requerido", "Ok");
             return;
         }
 
 
         if (Height < 10)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta", "La estatura debe ser superior a 10 cm", "Ok");
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", "La estatura debe ser superior a 10 cm", "Ok");
             return;
         }
 
 
         if (Weight < 1)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta", "El peso no puede ser inferior a 1 Kg", "Ok");
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", "El peso no puede ser inferior a 1 Kg", "Ok");
             return;
         }
 
         if (bmi > 50)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta", $"El IMC calculado es de {bmi} " +
-                                                                  $"por lo que sale completamente del cálculo (IMC máximo de 50)" +
-                                                                  $"", "Ok");
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", $"El IMC calculado es de {bmi} " +
+                                                  $"por lo que sale completamente del cálculo (IMC máximo de 50)" +
+                                                  $"", "Ok");
             return;
         }
 
         if (TakenDate < SelectedDate)
         {
-            Application.Current?.MainPage?.DisplayAlert("Alerta", "La fecha de toma de datos no puede ser inferior a " +
-                                                                  "la fecha de nacimiento", "Ok");
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", "La fecha de toma de datos no puede ser inferior a " +
+                                                  "la fecha de nacimiento", "Ok");
             return;
+        }
+        
+        if((TakenDate - SelectedDate).TotalDays >= 6980)
+        {
+            Application.Current?
+                .MainPage?.DisplayAlert("Alerta", "Por la edad de la persona no se va a generar un gráfico, " + 
+                                                  "para poder hacer el calculo se requiere una persona menor de 19 años", 
+                    "Ok");
         }
 
         await Navigation?.PushAsync(new ResultPage(new DataForAgesRequest

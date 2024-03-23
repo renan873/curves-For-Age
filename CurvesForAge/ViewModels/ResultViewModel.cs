@@ -1,16 +1,21 @@
+using System.Windows.Input;
 using CurvesForAge.Data;
 using CurvesForAge.Models;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.Drawing;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.SKCharts;
+using LiveChartsCore.SkiaSharpView.VisualElements;
 using SkiaSharp;
 
 namespace CurvesForAge.ViewModels;
 
-public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
+public class ResultViewModel : ViewModelBase
 {
     private readonly DatabaseContext _context = new();
+    private readonly DataForAgesRequest _request;
 
     private string _mainMessage = "";
     private string _bmiText = "";
@@ -171,22 +176,35 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
         set => SetValue(ref _xAxeHc, value);
     }
 
+    public ICommand BmiExportCommand { get; private set; }
+    public ICommand HeightExportCommand { get; private set; }
+    public ICommand WeightExportCommand { get; private set; }
+    public ICommand HcExportCommand { get; private set; }
+    
     #endregion
 
+    public ResultViewModel(DataForAgesRequest request)
+    {
+        _request = request;
+    BmiExportCommand = new Command(BmiExportMethod);
+    HeightExportCommand = new Command(HeightExportMethod);
+    WeightExportCommand = new Command(WeightExportMethod);
+    HcExportCommand = new Command(HcExportMethod);
+    }
 
     public async Task LoadDataAsync()
     {
         try
         {
-            var sex = request.Sex;
+            var sex = _request.Sex;
 
-            var days = (request.Take - request.Dob).TotalDays;
+            var days = (_request.Take - _request.Dob).TotalDays;
 
             var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
 
             int? weightCase = null;
 
-            MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {request.Bmi}, " +
+            MainMessage = $"De acuerdo a los datos ingresados se calcula el IMC por un valor de {_request.Bmi}, " +
                           $"lo que nos da el siguiente resultado:";
 
             var bmiResult = await dataForAgeTable
@@ -199,18 +217,18 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 .OrderByDescending(x => x.Days)
                 .FirstAsync() ?? new DataForAge();
 
-            var bmiResultTuple = DefineCase(bmiResult, request.Bmi, "un IMC");
-            var heightResultTuple = DefineCase(heightResult, request.Height, "una talla - longitud");
+            var bmiResultTuple = DefineCase(bmiResult, _request.Bmi, "un IMC");
+            var heightResultTuple = DefineCase(heightResult, _request.Height, "una talla - longitud");
 
             BmiResult = bmiResultTuple.Item1 + ".";
             HeightResult = heightResultTuple.Item1 + ".";
 
             if (days < 6980)
             {
-                BmiSeries = await ChartGeneration("BMIForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Bmi));
+                BmiSeries = await ChartGeneration("BMIForAge", new TimeSpanPoint(TimeSpan.FromDays(days), _request.Bmi));
                 BmiResultVisible = true;
                 HeightSeries = await ChartGeneration("HeightForAge",
-                    new TimeSpanPoint(TimeSpan.FromDays(days), request.Height));
+                    new TimeSpanPoint(TimeSpan.FromDays(days), _request.Height));
                 HeightResultVisible = true;
             }
 
@@ -221,25 +239,25 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                     .OrderByDescending(x => x.Days)
                     .FirstAsync() ?? new DataForAge();
 
-                var weightResultTuple = DefineCase(weightResult, request.Weight, "un peso");
+                var weightResultTuple = DefineCase(weightResult, _request.Weight, "un peso");
                 WeightResult = weightResultTuple.Item1 + ".";
                 WeightSeries = await ChartGeneration("WeightForAge",
-                    new TimeSpanPoint(TimeSpan.FromDays(days), request.Weight));
+                    new TimeSpanPoint(TimeSpan.FromDays(days), _request.Weight));
                 WeightResultVisible = true;
 
                 weightCase = weightResultTuple.Item2;
             }
 
-            if (days < 1856 || request.Hc == 0)
+            if (days < 1856 && _request.Hc > 5)
             {
                 var hcResult = await dataForAgeTable
                     .Where(x => x.Sex == sex && x.Type == "HCForAge" && x.Days <= days)
                     .OrderByDescending(x => x.Days)
                     .FirstAsync() ?? new DataForAge();
 
-                var hcResultTuple = DefineCase(hcResult, request.Hc, "un perímetro cefálico");
+                var hcResultTuple = DefineCase(hcResult, _request.Hc, "un perímetro cefálico");
                 HcResult = hcResultTuple.Item1 + ".";
-                HcSeries = await ChartGeneration("HCForAge", new TimeSpanPoint(TimeSpan.FromDays(days), request.Hc));
+                HcSeries = await ChartGeneration("HCForAge", new TimeSpanPoint(TimeSpan.FromDays(days), _request.Hc));
                 HcResultVisible = true;
             }
 
@@ -256,11 +274,21 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
     {
         var dataForAgeTable = await _context.GetTableAsync<DataForAge>();
 
-        var initDay = observablePoint.TimeSpan.Days - 1000;
-        var lastDay = observablePoint.TimeSpan.Days + 1000;
+        int initDay, lastDay;
+
+        if (observablePoint.TimeSpan.Days <= 1856)
+        {
+            initDay = 0;
+            lastDay = 1856;
+        }
+        else
+        {
+            initDay = 1857;
+            lastDay = 6990;
+        }
 
         var data = await dataForAgeTable
-            .Where(x => x.Sex == request.Sex && x.Type == type && x.Days > initDay && x.Days < lastDay)
+            .Where(x => x.Sex == _request.Sex && x.Type == type && x.Days > initDay && x.Days < lastDay)
             .OrderBy(x => x.Days)
             .ToListAsync() ?? [];
 
@@ -376,7 +404,7 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
                 Values = new[] {observablePoint},
                 Fill = null,
                 GeometrySize = 2,
-                GeometryFill = new SolidColorPaint(SKColors.Black),
+                GeometryFill = new SolidColorPaint(SKColors.White),
                 LineSmoothness = 1,
                 Stroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 6},
                 GeometryStroke = new SolidColorPaint(SKColors.Black) {StrokeThickness = 3}
@@ -513,5 +541,55 @@ public class ResultViewModel(DataForAgesRequest request) : ViewModelBase
             } + ".";
         }
         ResultVisible = true;
+    }
+    
+    private void BmiExportMethod()
+    {
+        ShareFile(BmiSeries, XAxeBmi,"Curva IMC");
+    }
+    
+    private void HeightExportMethod()
+    {
+        ShareFile(HeightSeries, XAxeHeight,"Curva ALtura");
+    }
+
+    private void WeightExportMethod()
+    {
+        ShareFile(WeightSeries, XAxeWeight,"Curva Peso");
+    }
+
+    private void HcExportMethod()
+    {
+        ShareFile(HcSeries, XAxeHc,"Curva Perímetro Cefálico");
+    }
+
+    private async Task ShareFile( ISeries[] series, Axis[] axis, string title)
+    {
+        var cartesianChart = new SKCartesianChart
+        {
+            Width = 900,
+            Height = 600,
+            Series = series,
+            XAxes = axis,
+            Title = new LabelVisual
+            {
+                Text = title,
+                TextSize = 30,
+                Padding = new Padding(15),
+                Paint = new SolidColorPaint(0xff303030)
+            },
+            LegendPosition = LiveChartsCore.Measure.LegendPosition.Hidden,
+            Background = SKColors.White
+        };
+
+        var file = Path.Combine(FileSystem.CacheDirectory, title + ".png");
+
+        cartesianChart.SaveImage(file);
+
+        await Share.Default.RequestAsync(new ShareFileRequest
+        {
+            Title = title,
+            File = new ShareFile(file)
+        });
     }
 }

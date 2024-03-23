@@ -43,7 +43,16 @@
                                     ZoomMode="X" />
             </Grid>
 
-            <Label Text="{Binding BmiResult}" />
+            <Grid ColumnDefinitions="*, 40">
+                <Label Grid.Column="0" 
+                       Text="{Binding BmiResult}" />
+                <ImageButton Source="share.png"
+                             Grid.Column="1"
+                             IsVisible="{Binding BmiResultVisible}"
+                             HeightRequest="40"
+                             VerticalOptions="Start"
+                             Command="{Binding BmiExportCommand}" />
+            </Grid>
 
             <Grid IsVisible="{Binding HeightResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
@@ -52,7 +61,16 @@
                                     ZoomMode="X" />
             </Grid>
 
-            <Label Text="{Binding HeightResult}" />
+            <Grid ColumnDefinitions="*, 40">
+                <Label Grid.Column="0" 
+                       Text="{Binding HeightResult}" />
+                <ImageButton Source="share.png"
+                             Grid.Column="1"
+                             IsVisible="{Binding HeightResultVisible}"
+                             HeightRequest="40"
+                             VerticalOptions="Start"
+                             Command="{Binding HeightExportCommand}" />
+            </Grid>
 
             <Grid IsVisible="{Binding WeightResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
@@ -60,9 +78,17 @@
                                     XAxes="{Binding XAxeWeight}"
                                     ZoomMode="X" />
             </Grid>
-
-            <Label IsVisible="{Binding WeightResultVisible}"
-                   Text="{Binding WeightResult}" />
+            
+            <Grid ColumnDefinitions="*, 40" 
+                  IsVisible="{Binding WeightResultVisible}">
+                <Label Grid.Column="0" 
+                       Text="{Binding WeightResult}" />
+                <ImageButton Source="share.png"
+                             Grid.Column="1"
+                             HeightRequest="40"
+                             VerticalOptions="Start"
+                             Command="{Binding WeightExportCommand}" />
+            </Grid>
 
             <Grid IsVisible="{Binding HcResultVisible}">
                 <lvc:CartesianChart HeightRequest="300"
@@ -71,8 +97,16 @@
                                     ZoomMode="X" />
             </Grid>
 
-            <Label IsVisible="{Binding HcResultVisible}"
-                   Text="{Binding HcResult}" />
+            <Grid ColumnDefinitions="*, 40"
+                  IsVisible="{Binding HcResultVisible}">
+                <Label Grid.Column="0" 
+                       Text="{Binding HcResult}" />
+                <ImageButton Source="share.png"
+                             Grid.Column="1"
+                             HeightRequest="40"
+                             VerticalOptions="Start"
+                             Command="{Binding HcExportCommand}" />
+            </Grid>
         </VerticalStackLayout>
     </ScrollView>
 
